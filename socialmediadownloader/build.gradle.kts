@@ -70,7 +70,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.ShafqatDev"
                 artifactId = "socialmediadownloader"
-                version = "1.0"
+                version = "1.1"
             }
         }
     }
