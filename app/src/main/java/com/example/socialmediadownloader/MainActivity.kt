@@ -91,8 +91,10 @@ fun VideoDownloaderScreen() {
                         model = videoData.quality.firstOrNull()?.qualityUrl?.takeIf { it.isNotEmpty() },
                         contentDescription = "Video Thumbnail"
                     )
-                    Button(onClick = {}) {
-                        Text(text = "Download Quality: ${videoData.quality.firstOrNull()?.qualityName.takeIf { it?.isNotEmpty() == true } ?: "Quality"}")
+                    for (quality in videoData.quality) {
+                        Button(onClick = {}) {
+                            Text(text = "Download Quality: ${videoData.quality.firstOrNull()?.qualityName.takeIf { it?.isNotEmpty() == true } ?: "Quality"}")
+                        }
                     }
                 }
             }

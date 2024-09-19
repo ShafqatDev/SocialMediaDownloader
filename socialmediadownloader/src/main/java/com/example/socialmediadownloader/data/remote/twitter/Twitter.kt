@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Twitter(
     val code: Int?=null,
     val message: String?=null,
-    val tweet: Tweet? = null
+    val twitterTweet: TwitterTweet? = null
 )

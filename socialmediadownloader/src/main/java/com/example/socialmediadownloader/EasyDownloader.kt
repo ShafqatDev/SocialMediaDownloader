@@ -21,5 +21,4 @@ class EasyDownloader {
             specificVideoDownloader.downloadVideo(url)
         }
     }
-
 }

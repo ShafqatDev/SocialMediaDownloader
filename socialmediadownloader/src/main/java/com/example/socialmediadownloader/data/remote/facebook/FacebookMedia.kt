@@ -3,7 +3,7 @@ package com.example.socialmediadownloader.data.remote.facebook
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Media(
+data class FacebookMedia(
     val audioAvailable: Boolean?=null,
     val cached: Boolean?=null,
     val chunked: Boolean?=null,

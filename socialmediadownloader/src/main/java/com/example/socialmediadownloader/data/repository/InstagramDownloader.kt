@@ -26,13 +26,8 @@ class InstagramDownloader : DownloadVideoRepository {
         return when (response) {
             is NetworkResponse.Success -> {
                 response.data?.let { instagramDataList ->
-                    // Convert the first InstagramData object to Video
                     val video = instagramDataList.firstOrNull()?.toVideo()
-                    if (video != null) {
-                        NetworkResponse.Success(video)
-                    } else {
-                        NetworkResponse.Failure("No video data found")
-                    }
+                    return video!!
                 } ?: NetworkResponse.Failure("Failed to extract data")
             }
 

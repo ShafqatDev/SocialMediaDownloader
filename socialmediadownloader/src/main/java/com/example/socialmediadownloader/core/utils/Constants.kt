@@ -9,9 +9,10 @@ import com.example.socialmediadownloader.data.remote.linkedin.LinkedIn
 import com.example.socialmediadownloader.data.remote.social.SocialVideo
 import com.example.socialmediadownloader.data.remote.tiktok.Tiktok
 import com.example.socialmediadownloader.data.remote.twitter.Twitter
+import com.example.socialmediadownloader.data.response.NetworkResponse
 
 object Constants {
-    fun InstagramData.toVideo(): Video {
+    fun InstagramData.toVideo(): NetworkResponse<Video> {
         val qualities = this.url?.map { mediaUrl ->
             Quality(
                 qualityName = mediaUrl.type ?: "Unknown",
@@ -20,16 +21,23 @@ object Constants {
             )
         } ?: emptyList()
 
-        return Video(
-            title = this.meta?.title ?: "No title",
-            socialMediaType = SocialMediaType.INSTAGRAM,
-            quality = qualities,
-        )
+        return if (qualities.isNotEmpty()) {
+            NetworkResponse.Success(
+                Video(
+                    title = this.meta?.title ?: "No title",
+                    socialMediaType = SocialMediaType.INSTAGRAM,
+                    quality = qualities,
+                    thumbnail = thumb ?: this.url?.first()?.url
+                )
+            )
+        } else {
+            NetworkResponse.Failure("No video qualities found")
+        }
     }
 
-    fun Tiktok.toVideo(): Video {
+    fun Tiktok.toVideo(): NetworkResponse<Video> {
         val qualities = mutableListOf<Quality>()
-        this.data?.let { data ->
+        this.tiktokData?.let { data ->
             data.play?.let {
                 qualities.add(
                     Quality(
@@ -59,30 +67,43 @@ object Constants {
             }
         }
 
-        return Video(
-            title = this.data?.title ?: "No title",
-            socialMediaType = SocialMediaType.TIKTOK,
-            quality = qualities,
-        )
+        return if (qualities.isNotEmpty()) {
+            NetworkResponse.Success(
+                Video(
+                    title = this.tiktokData?.title ?: "No title",
+                    socialMediaType = SocialMediaType.TIKTOK,
+                    quality = qualities,
+                    thumbnail = tiktokData?.origin_cover ?: tiktokData?.play
+                )
+            )
+        } else {
+            NetworkResponse.Failure("No video qualities found")
+        }
     }
 
-    fun Twitter.toVideo(): Video {
-        val tweetVideo = this.tweet?.media?.videos?.firstOrNull()
-        return tweetVideo?.let { video ->
-            Video(title = this.tweet?.text ?: "No title",
-                socialMediaType = SocialMediaType.TWITTER,
-                quality = video.video_urls?.map { videoUrl ->
-                    Quality(
-                        qualityName = "Quality-${videoUrl.bitrate ?: "Unknown"}",
-                        qualityUrl = videoUrl.url ?: "",
-                        qualitySize = videoUrl.bitrate?.toString() ?: "Unknown"
-                    )
-                } ?: emptyList())
-        } ?: Video(
-            title = this.tweet?.text ?: "No title",
-            socialMediaType = SocialMediaType.TWITTER,
-            quality = emptyList(),
-        )
+    fun Twitter.toVideo(): NetworkResponse<Video> {
+        val tweetVideo = this.twitterTweet?.twitterMedia?.twitterVideos?.firstOrNull()
+        val qualities = tweetVideo?.video_urls?.map { videoUrl ->
+            Quality(
+                qualityName = "Quality-${videoUrl.bitrate ?: "Unknown"}",
+                qualityUrl = videoUrl.url ?: "",
+                qualitySize = videoUrl.bitrate?.toString() ?: "Unknown"
+            )
+        } ?: emptyList()
+
+        return if (qualities.isNotEmpty()) {
+            NetworkResponse.Success(
+                Video(
+                    title = this.twitterTweet?.text ?: "No title",
+                    socialMediaType = SocialMediaType.TWITTER,
+                    quality = qualities,
+                    thumbnail = this.twitterTweet?.twitterMedia?.twitterVideos?.first()?.thumbnail_url
+                        ?: tweetVideo?.video_urls?.first()?.url
+                )
+            )
+        } else {
+            NetworkResponse.Failure("No video qualities found")
+        }
     }
 
     fun List<LinkedIn>.toVideo(): Video {
@@ -97,13 +118,14 @@ object Constants {
             title = videoTitle,
             socialMediaType = SocialMediaType.LINKEDIN,
             quality = videoQuality,
+            thumbnail = this.first().link
         )
     }
 
     fun Facebook.toVideo(): Video {
         val videoTitle = this.title ?: "Untitled Video"
         val thumbnailUrl = this.thumbnail ?: ""
-        val videoQuality = this.medias?.map { media ->
+        val videoQuality = this.facebookMedia?.map { media ->
             Quality(
                 qualityName = media.quality ?: "Unknown Quality",
                 qualityUrl = media.url ?: "",
@@ -115,8 +137,10 @@ object Constants {
             title = videoTitle,
             socialMediaType = SocialMediaType.FACEBOOK,
             quality = videoQuality,
+            thumbnail = thumbnailUrl ?: this.facebookMedia?.first()?.url
         )
     }
+
     fun SocialVideo.toVideo(): Video {
         val qualities = this.medias?.map { media ->
             Quality(
@@ -129,9 +153,8 @@ object Constants {
         return Video(
             title = this.title ?: "",
             socialMediaType = SocialMediaType.SOCIALVIDEO,
-            quality = qualities
+            quality = qualities,
+            thumbnail = this.thumbnail ?: ""
         )
     }
-
-
 }

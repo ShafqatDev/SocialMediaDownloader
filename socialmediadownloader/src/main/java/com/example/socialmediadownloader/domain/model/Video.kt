@@ -5,4 +5,5 @@ data class Video(
     val title: String = "",
     val socialMediaType: SocialMediaType = SocialMediaType.INSTAGRAM,
     val quality: List<Quality> = emptyList(),
+    val thumbnail: String? = "No Thumbnail"
 )

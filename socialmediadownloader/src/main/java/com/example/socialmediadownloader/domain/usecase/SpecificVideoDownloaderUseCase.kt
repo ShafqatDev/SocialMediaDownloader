@@ -15,7 +15,6 @@ class SpecificVideoDownloaderUseCase(
         val specificDownloader = getDownloaderByUrl(url)
         return specificDownloader?.scrapeVideos(url) ?: NetworkResponse.Failure("")
     }
-
     private fun getDownloaderByUrl(url: String): DownloadVideoRepository? {
         val facebookUrl = url.contains("facebook") || url.contains("fb.watch")
         val tiktokUrl =

@@ -15,15 +15,13 @@ class TiktokDownloader : DownloadVideoRepository {
             url = videoUrl,
             requestType = RequestTypes.Get,
         )
-
         return when (response) {
             is NetworkResponse.Success -> {
                 response.data?.let { tiktokData ->
                     val video = tiktokData.toVideo()
-                    NetworkResponse.Success(video)
+                    return video
                 } ?: NetworkResponse.Failure("No video data found")
             }
-
             is NetworkResponse.Failure -> NetworkResponse.Failure(response.error)
             is NetworkResponse.Idle -> NetworkResponse.Idle()
             is NetworkResponse.Loading -> NetworkResponse.Loading()

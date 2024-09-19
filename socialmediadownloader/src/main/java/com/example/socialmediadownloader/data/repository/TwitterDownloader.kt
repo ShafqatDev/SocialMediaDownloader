@@ -19,18 +19,17 @@ class TwitterDownloader : DownloadVideoRepository {
             "Authorization" to "cKMQlY4jGCflOStlN3UfnWCxLQSb5GL7UPjPJ3jGS5fkno1Jaf"
         )
         val response = NetworkClient.makeNetworkRequest<Twitter>(
-            url = baseUrl,
-            requestType = RequestTypes.Get,
-            headers = headers
+            url = baseUrl, requestType = RequestTypes.Get, headers = headers
         )
 
         return when (response) {
             is NetworkResponse.Success -> {
                 response.data?.let { twitterData ->
                     val video = twitterData.toVideo()
-                    NetworkResponse.Success(video)
+                    return video
                 } ?: NetworkResponse.Failure("No video data found")
             }
+
             is NetworkResponse.Failure -> NetworkResponse.Failure(response.error)
             is NetworkResponse.Idle -> NetworkResponse.Idle()
             is NetworkResponse.Loading -> NetworkResponse.Loading()

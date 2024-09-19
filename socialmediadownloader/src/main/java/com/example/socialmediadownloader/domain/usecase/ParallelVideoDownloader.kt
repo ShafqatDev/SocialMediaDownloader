@@ -11,7 +11,6 @@ import kotlin.coroutines.resume
 
 class ParallelVideoDownloader {
 
-
     private val allVideoDownloader by lazy {
         AllVideoDownloaderUseCase()
     }
@@ -20,25 +19,23 @@ class ParallelVideoDownloader {
     }
 
     suspend operator fun invoke(url: String): NetworkResponse<Video> {
-        return suspendCancellableCoroutine {
+        return suspendCancellableCoroutine { continuation ->
             CoroutineScope(Dispatchers.IO).launch {
-                val job1 = async {
-                    allVideoDownloader.downloadVideo(url)
-                }
-                val job2 = async {
-                    specificVideoDownloader.downloadVideo(url)
-                }
-                val response1 = job1.await()
-                val response2 = job2.await()
-                if (response1 is NetworkResponse.Success) {
-                    it.resume(NetworkResponse.Success(response1.data!!))
-                    it.cancel()
-                } else if (response2 is NetworkResponse.Success) {
-                    it.resume(NetworkResponse.Success(response2.data!!))
-                    it.cancel()
-                } else {
-                    it.resume(NetworkResponse.Failure("Failed to download video"))
-                    it.cancel()
+                try {
+                    val job1 = async { allVideoDownloader.downloadVideo(url) }
+                    val job2 = async { specificVideoDownloader.downloadVideo(url) }
+                    val response1 = job1.await()
+                    val response2 = job2.await()
+                    when {
+                        response1 is NetworkResponse.Success -> {
+                            continuation.resume(NetworkResponse.Success(response1.data!!))
+                        }
+                        response2 is NetworkResponse.Success -> {
+                            continuation.resume(NetworkResponse.Success(response2.data!!))
+                        }
+                    }
+                } catch (e: Exception) {
+                    continuation.resume(NetworkResponse.Failure("Error occurred: ${e.message}"))
                 }
             }
         }

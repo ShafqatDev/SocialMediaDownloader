@@ -2,7 +2,7 @@ package com.example.socialmediadownloader.data.remote.tiktok
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MusicInfo(
+data class TiktokMusicInfo(
     val album: String?=null,
     val author: String?=null,
     val cover: String?=null,
